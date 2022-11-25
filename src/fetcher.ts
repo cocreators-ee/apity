@@ -150,25 +150,27 @@ async function getResponseData(response: Response) {
   }
 }
 
-async function fetchJson(url: string, init: RequestInit): Promise<ApiResponse> {
-  const response = await fetch(url, init)
+function makeFetchJson(fetch) {
+  return async function fetchJson(url: string, init: RequestInit): Promise<ApiResponse> {
+    const response = await fetch(url, init)
 
-  const data = await getResponseData(response)
+    const data = await getResponseData(response)
 
-  const result = {
-    headers: response.headers,
-    url: response.url,
-    ok: response.ok,
-    status: response.status,
-    statusText: response.statusText,
-    data,
+    const result = {
+      headers: response.headers,
+      url: response.url,
+      ok: response.ok,
+      status: response.status,
+      statusText: response.statusText,
+      data,
+    }
+
+    if (result.ok) {
+      return result
+    }
+
+    throw new ApiError(result)
   }
-
-  if (result.ok) {
-    return result
-  }
-
-  throw new ApiError(result)
 }
 
 function wrapMiddlewares(middlewares: Middleware[], fetch: Fetch): Fetch {
@@ -231,7 +233,6 @@ function fetcher<Paths>() {
   let baseUrl = ''
   let defaultInit: RequestInit = {}
   const middlewares: Middleware[] = []
-  const fetch = wrapMiddlewares(middlewares, fetchJson)
 
   return {
     configure: (config: FetchConfig) => {
@@ -244,7 +245,8 @@ function fetcher<Paths>() {
     path: <P extends keyof Paths>(path: P) => ({
       method: <M extends keyof Paths[P]>(method: M) => ({
         create: ((queryParams?: Record<string, true | 1>) =>
-          createFetch((payload, init) =>
+          createFetch((fetch, payload, init) =>
+            const _fetch = wrapMiddlewares(middlewares, makeFetchJson(fetch))
             fetchUrl({
               baseUrl: baseUrl || '',
               path: path as string,
@@ -252,7 +254,7 @@ function fetcher<Paths>() {
               queryParams: Object.keys(queryParams || {}),
               payload,
               init: mergeRequestInit(defaultInit, init),
-              fetch,
+              fetch: _fetch,
             }),
           )) as CreateFetch<M, Paths[P][M]>,
       }),
