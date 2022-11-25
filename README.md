@@ -3,18 +3,18 @@
 
 # 📘️ openapi-typescript-fetch
 
-A typed fetch client for [openapi-typescript](https://github.com/drwpow/openapi-typescript)
+A typed fetch client for [openapi-typescript](https://github.com/drwpow/openapi-typescript) compatible with SvelteKit's custom `fetch`
 
 ### Install
 
 ```bash
-npm install openapi-typescript-fetch
+npm install https://github.com/lietu/openapi-typescript-fetch-sveltekit.git
 ```
 
 Or
 
 ```bash
-yarn add openapi-typescript-fetch
+pnpm add https://github.com/lietu/openapi-typescript-fetch-sveltekit.git
 ```
 
 **Features**
@@ -38,8 +38,6 @@ npx openapi-typescript https://petstore.swagger.io/v2/swagger.json --output pets
 **Typed fetch client**
 
 ```ts
-import 'whatwg-fetch'
-
 import { Fetcher } from 'openapi-typescript-fetch'
 
 import { paths } from './petstore'
@@ -62,8 +60,9 @@ fetcher.configure({
 const findPetsByStatus = fetcher.path('/pet/findByStatus').method('get').create()
 const addPet = fetcher.path('/pet').method('post').create()
 
-// fetch
-const { status, data: pets } = await findPetsByStatus({
+// `fetch` may be the argument to `load()`
+// https://kit.svelte.dev/docs/load#making-fetch-requests
+const { status, data: pets } = await findPetsByStatus(fetch, {
   status: ['available', 'pending'],
 })
 
@@ -83,8 +82,8 @@ const findPetsByStatus = fetcher.path('/pet/findByStatus').method('get').create(
 const addPet = fetcher.path('/pet').method('post').create()
 
 try {
-  await findPetsByStatus({ ... })
-  await addPet({ ... })
+  await findPetsByStatus(fetch, { ... })
+  await addPet(fetch, { ... })
 } catch(e) {
   // check which operation threw the exception
   if (e instanceof addPet.Error) {
@@ -99,57 +98,6 @@ try {
     }
   }
 }
-```
-
-### Middleware
-
-Middlewares can be used to pre and post process fetch operations (log api calls, add auth headers etc)
-
-```ts
-
-import { Middleware } from 'openapi-typescript-fetch'
-
-const logger: Middleware = async (url, init, next) => {
-  console.log(`fetching ${url}`)
-  const response = await next(url, init)
-  console.log(`fetched ${url}`)
-  return response
-}
-
-fetcher.configure({
-  baseUrl: 'https://petstore.swagger.io/v2',
-  init: { ... },
-  use: [logger],
-})
-
-// or
-
-fetcher.use(logger)
-```
-
-### Server Side Usage
-
-This library can be used server side with [node-fetch](https://www.npmjs.com/package/node-fetch)
-
-Node CommonJS setup
-
-```ts
-// install node-fetch v2
-npm install node-fetch@2
-npm install @types/node-fetch@2
-
-// fetch-polyfill.ts
-import fetch, { Headers, Request, Response } from 'node-fetch'
-
-if (!globalThis.fetch) {
-    globalThis.fetch = fetch as any
-    globalThis.Headers = Headers as any
-    globalThis.Request = Request as any
-    globalThis.Response = Response as any
-}
-
-// index.ts
-import './fetch-polyfill'
 ```
 
 ### Utility Types
