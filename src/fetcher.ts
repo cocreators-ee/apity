@@ -1,18 +1,17 @@
 import {
+  _TypedWrappedFetch,
   ApiError,
   ApiResponse,
   CreateFetch,
-  CustomRequestInit,
-  Fetch,
   FetchConfig,
+  LimitedResponse,
   Method,
-  Middleware,
   OpArgType,
   OpenapiPaths,
   OpErrorType,
+  RealFetch,
   Request,
-  _TypedFetch,
-  TypedFetch,
+  TypedWrappedFetch,
 } from './types'
 
 const sendBody = (method: Method) =>
@@ -134,7 +133,7 @@ function getFetchParams(request: Request) {
   return { url, init }
 }
 
-async function getResponseData(response: Response) {
+async function getResponseData(response: LimitedResponse) {
   const contentType = response.headers.get('content-type')
   if (response.status === 204 /* no content */) {
     return undefined
@@ -150,61 +149,47 @@ async function getResponseData(response: Response) {
   }
 }
 
-function makeFetchJson(fetch) {
-  return async function fetchJson(url: string, init: RequestInit): Promise<ApiResponse> {
-    const response = await fetch(url, init)
+async function fetchJson(
+  fetch: RealFetch,
+  url: string,
+  init: RequestInit,
+): Promise<ApiResponse> {
+  const response = await fetch(url, init)
 
-    const data = await getResponseData(response)
+  const data = await getResponseData(response)
 
-    const result = {
-      headers: response.headers,
-      url: response.url,
-      ok: response.ok,
-      status: response.status,
-      statusText: response.statusText,
-      data,
-    }
-
-    if (result.ok) {
-      return result
-    }
-
-    throw new ApiError(result)
-  }
-}
-
-function wrapMiddlewares(middlewares: Middleware[], fetch: Fetch): Fetch {
-  type Handler = (
-    index: number,
-    url: string,
-    init: CustomRequestInit,
-  ) => Promise<ApiResponse>
-
-  const handler: Handler = async (index, url, init) => {
-    if (middlewares == null || index === middlewares.length) {
-      return fetch(url, init)
-    }
-    const current = middlewares[index]
-    return await current(url, init, (nextUrl, nextInit) =>
-      handler(index + 1, nextUrl, nextInit),
-    )
+  const result = {
+    headers: response.headers,
+    url: response.url,
+    ok: response.ok,
+    status: response.status,
+    statusText: response.statusText,
+    data,
   }
 
-  return (url, init) => handler(0, url, init)
+  if (result.ok) {
+    return result
+  }
+
+  throw new ApiError(result)
 }
 
 async function fetchUrl<R>(request: Request) {
   const { url, init } = getFetchParams(request)
 
-  const response = await request.fetch(url, init)
+  const response = await fetchJson(request.realFetch, url, init)
 
   return response as ApiResponse<R>
 }
 
-function createFetch<OP>(fetch: _TypedFetch<OP>): TypedFetch<OP> {
-  const fun = async (payload: OpArgType<OP>, init?: RequestInit) => {
+function createFetch<OP>(fetch: _TypedWrappedFetch<OP>): TypedWrappedFetch<OP> {
+  const fun = async (
+    realFetch: RealFetch,
+    payload: OpArgType<OP>,
+    init?: RequestInit,
+  ) => {
     try {
-      return await fetch(payload, init)
+      return await fetch(realFetch, payload, init)
     } catch (err) {
       if (err instanceof ApiError) {
         throw new fun.Error(err)
@@ -218,6 +203,7 @@ function createFetch<OP>(fetch: _TypedFetch<OP>): TypedFetch<OP> {
       super(error)
       Object.setPrototypeOf(this, new.target.prototype)
     }
+
     getActualType() {
       return {
         status: this.status,
@@ -232,21 +218,16 @@ function createFetch<OP>(fetch: _TypedFetch<OP>): TypedFetch<OP> {
 function fetcher<Paths>() {
   let baseUrl = ''
   let defaultInit: RequestInit = {}
-  const middlewares: Middleware[] = []
 
   return {
     configure: (config: FetchConfig) => {
       baseUrl = config.baseUrl || ''
       defaultInit = config.init || {}
-      middlewares.splice(0)
-      middlewares.push(...(config.use || []))
     },
-    use: (mw: Middleware) => middlewares.push(mw),
     path: <P extends keyof Paths>(path: P) => ({
       method: <M extends keyof Paths[P]>(method: M) => ({
         create: ((queryParams?: Record<string, true | 1>) =>
-          createFetch((fetch, payload, init) =>
-            const _fetch = wrapMiddlewares(middlewares, makeFetchJson(fetch))
+          createFetch((realFetch, payload, init) =>
             fetchUrl({
               baseUrl: baseUrl || '',
               path: path as string,
@@ -254,7 +235,7 @@ function fetcher<Paths>() {
               queryParams: Object.keys(queryParams || {}),
               payload,
               init: mergeRequestInit(defaultInit, init),
-              fetch: _fetch,
+              realFetch: realFetch,
             }),
           )) as CreateFetch<M, Paths[P][M]>,
       }),

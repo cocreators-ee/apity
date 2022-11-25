@@ -66,6 +66,7 @@
     "test": "npm run build && jest",
     "test:coverage": "npm run build && jest --no-cache --coverage && codecov",
     "test:coverage:local": "npm run build && jest --no-cache --collectCoverage",
-    "typecheck": "tsc --noEmit --project tsconfig.json"
+    "typecheck": "tsc --noEmit --project tsconfig.json",
+    "format": "prettier -w ."
   }
 }
