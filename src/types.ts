@@ -14,44 +14,44 @@ export type OpenapiPaths<Paths> = {
 }
 
 export type OpArgType<OP> = OP extends {
-    parameters?: {
-      path?: infer P
-      query?: infer Q
-      body?: infer B
-      header?: unknown // ignore
-      cookie?: unknown // ignore
-    }
-    // openapi 3
-    requestBody?: {
-      content: {
-        'application/json': infer RB
-      }
+  parameters?: {
+    path?: infer P
+    query?: infer Q
+    body?: infer B
+    header?: unknown // ignore
+    cookie?: unknown // ignore
+  }
+  // openapi 3
+  requestBody?: {
+    content: {
+      'application/json': infer RB
     }
   }
+}
   ? P & Q & (B extends Record<string, unknown> ? B[keyof B] : unknown) & RB
   : Record<string, never>
 
 type OpResponseTypes<OP> = OP extends {
-    responses: infer R
-  }
+  responses: infer R
+}
   ? {
-    [S in keyof R]: R[S] extends { schema?: infer S } // openapi 2
-      ? S
-      : R[S] extends { content: { 'application/json': infer C } } // openapi 3
+      [S in keyof R]: R[S] extends { schema?: infer S } // openapi 2
+        ? S
+        : R[S] extends { content: { 'application/json': infer C } } // openapi 3
         ? C
         : S extends 'default'
-          ? R[S]
-          : unknown
-  }
+        ? R[S]
+        : unknown
+    }
   : never
 
 type _OpReturnType<T> = 200 extends keyof T
   ? T[200]
   : 201 extends keyof T
-    ? T[201]
-    : 'default' extends keyof T
-      ? T['default']
-      : unknown
+  ? T[201]
+  : 'default' extends keyof T
+  ? T['default']
+  : unknown
 
 export type OpReturnType<OP> = _OpReturnType<OpResponseTypes<OP>>
 
@@ -74,8 +74,10 @@ type _OpErrorType<T> = {
 type Coalesce<T, D> = [T] extends [never] ? D : T
 
 // coalesce default error type
-export type OpErrorType<OP> = Coalesce<_OpErrorType<OpResponseTypes<OP>>,
-  { status: number; data: any }>
+export type OpErrorType<OP> = Coalesce<
+  _OpErrorType<OpResponseTypes<OP>>,
+  { status: number; data: any }
+>
 
 export type CustomRequestInit = Omit<RequestInit, 'headers'> & {
   readonly headers: Headers
@@ -83,7 +85,7 @@ export type CustomRequestInit = Omit<RequestInit, 'headers'> & {
 
 export type RealFetch = (
   url: string,
-  init: RequestInit
+  init: RequestInit,
 ) => Promise<LimitedResponse>
 
 export type Fetch = (
@@ -114,21 +116,21 @@ export type TypedWrappedFetch<OP> = _TypedWrappedFetch<OP> & {
   }
 }
 
-export type FetchArgType<F> = F extends TypedFetch<infer OP>
+export type FetchArgType<F> = F extends TypedWrappedFetch<infer OP>
   ? OpArgType<OP>
   : never
 
-export type FetchReturnType<F> = F extends TypedFetch<infer OP>
+export type FetchReturnType<F> = F extends TypedWrappedFetch<infer OP>
   ? OpReturnType<OP>
   : never
 
-export type FetchErrorType<F> = F extends TypedFetch<infer OP>
+export type FetchErrorType<F> = F extends TypedWrappedFetch<infer OP>
   ? OpErrorType<OP>
   : never
 
 type _CreateFetch<OP, Q = never> = [Q] extends [never]
-  ? () => TypedFetch<OP>
-  : (query: Q) => TypedFetch<OP>
+  ? () => TypedWrappedFetch<OP>
+  : (query: Q) => TypedWrappedFetch<OP>
 
 export type CreateFetch<M, OP> = M extends 'post' | 'put' | 'patch' | 'delete'
   ? OP extends { parameters: { query: infer Q } }
@@ -164,7 +166,7 @@ export type ApiResponse<R = any> = {
   readonly ok: boolean
   readonly status: number
   readonly statusText: string
-  readonly data?: R
+  readonly data: R
 }
 
 export type LimitedResponse = {

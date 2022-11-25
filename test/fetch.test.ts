@@ -35,7 +35,7 @@ describe('fetch', () => {
   it('GET /query/{a}/{b}', async () => {
     const fun = fetcher.path('/query/{a}/{b}').method('get').create()
 
-    const { ok, status, statusText, data } = await fun({
+    const { ok, status, statusText, data } = await fun(fetch, {
       a: 1,
       b: '/',
       scalar: 'a',
@@ -56,7 +56,7 @@ describe('fetch', () => {
     it(`${method.toUpperCase()} /body/{id}`, async () => {
       const fun = fetcher.path('/body/{id}').method(method).create()
 
-      const { data } = await fun({
+      const { data } = await fun(fetch, {
         id: 1,
         list: ['b', 'c'],
       })
@@ -72,7 +72,7 @@ describe('fetch', () => {
     it(`${method.toUpperCase()} /bodyarray/{id}`, async () => {
       const fun = fetcher.path('/bodyarray/{id}').method(method).create()
 
-      const { data } = await fun(arrayRequestBody(['b', 'c'], { id: 1 }))
+      const { data } = await fun(fetch, arrayRequestBody(['b', 'c'], { id: 1 }))
 
       expect(data.params).toEqual({ id: '1' })
       expect(data.body).toEqual(['b', 'c'])
@@ -88,7 +88,7 @@ describe('fetch', () => {
         .method(method)
         .create({ scalar: 1 })
 
-      const { data } = await fun({
+      const { data } = await fun(fetch, {
         id: 1,
         scalar: 'a',
         list: ['b', 'c'],
@@ -104,7 +104,7 @@ describe('fetch', () => {
   it(`DELETE /body/{id} (empty body)`, async () => {
     const fun = fetcher.path('/body/{id}').method('delete').create()
 
-    const { data } = await fun({ id: 1 } as any)
+    const { data } = await fun(fetch, { id: 1 } as any)
 
     expect(data.params).toEqual({ id: '1' })
     expect(data.headers).toHaveProperty('accept')
@@ -113,7 +113,7 @@ describe('fetch', () => {
 
   it(`POST /nocontent`, async () => {
     const fun = fetcher.path('/nocontent').method('post').create()
-    const { status, data } = await fun(undefined)
+    const { status, data } = await fun(fetch, undefined)
     expect(status).toBe(204)
     expect(data).toBeUndefined()
   })
@@ -124,7 +124,7 @@ describe('fetch', () => {
     const fun = fetcher.path('/error/{status}').method('get').create()
 
     try {
-      await fun({ status: 400 })
+      await fun(fetch, { status: 400 })
     } catch (err) {
       expect(err instanceof ApiError).toBe(true)
       expect(err instanceof fun.Error).toBe(true)
@@ -164,7 +164,7 @@ describe('fetch', () => {
 
     for (const status of [400, 500, 503]) {
       try {
-        await fun({ status, detail: true })
+        await fun(fetch, { status, detail: true })
       } catch (e) {
         handleError(e)
       }
@@ -182,7 +182,7 @@ describe('fetch', () => {
     const fun = fetcher.path('/defaulterror').method('get').create()
 
     try {
-      await fun({})
+      await fun(fetch, {})
     } catch (e) {
       if (e instanceof fun.Error) {
         const error = e.getActualType()
@@ -198,7 +198,7 @@ describe('fetch', () => {
     const fun = fetcher.path('/networkerror').method('get').create()
 
     try {
-      await fun({})
+      await fun(fetch, {})
     } catch (e) {
       expect(e).not.toBeInstanceOf(ApiError)
     }
@@ -216,6 +216,7 @@ describe('fetch', () => {
     const fun = fetcher.path('/query/{a}/{b}').method('get').create()
 
     const { data } = await fun(
+      fetch,
       {
         a: 1,
         b: '2',
@@ -231,43 +232,4 @@ describe('fetch', () => {
     expect(data.headers).toEqual({ ...expectedHeaders, admin: 'true' })
   })
 
-  it('middleware', async () => {
-    const fun = fetcher
-      .path('/bodyquery/{id}')
-      .method('post')
-      .create({ scalar: 1 })
-
-    const captured = { url: '', body: '' }
-
-    fetcher.use(async (url, init, next) => {
-      init.headers.set('mw1', 'true')
-
-      captured.url = url
-      captured.body = init.body as string
-
-      const response = await next(url, init)
-      const data = response.data as Data
-      data.body.list.push('mw1')
-
-      return response
-    })
-
-    fetcher.use(async (url, init, next) => {
-      const response = await next(url, init)
-      const data = response.data as Data
-      data.body.list.push('mw2')
-      return response
-    })
-
-    const { data } = await fun({
-      id: 1,
-      scalar: 'a',
-      list: ['b', 'c'],
-    })
-
-    expect(data.body.list).toEqual(['b', 'c', 'mw2', 'mw1'])
-    expect(data.headers.mw1).toEqual('true')
-    expect(captured.url).toEqual('https://api.backend.dev/bodyquery/1?scalar=a')
-    expect(captured.body).toEqual('{"list":["b","c"]}')
-  })
 })

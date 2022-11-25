@@ -11,6 +11,7 @@ import {
 } from '../src'
 import { paths as paths2 } from './examples/stripe-openapi2'
 import { paths as paths3 } from './examples/stripe-openapi3'
+import { TypedWrappedFetch } from '../src/types'
 
 type Op2 = paths2['/v1/account_links']['post']
 
@@ -67,7 +68,7 @@ describe('infer', () => {
   })
 
   describe('fetch', () => {
-    type CreateLink = TypedFetch<Op2>
+    type CreateLink = TypedWrappedFetch<Op2>
 
     const fetcher = Fetcher.for<paths2>()
     const createLink: CreateLink = fetcher
