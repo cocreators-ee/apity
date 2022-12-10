@@ -1,4 +1,4 @@
-import { arrayRequestBody } from '../src'
+import { arrayRequestBody } from '..'
 
 describe('utils', () => {
   it('array request body with params', () => {

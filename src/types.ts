@@ -111,6 +111,7 @@ export type TypedFetch<OP> = _TypedFetch<OP> & {
 }
 
 export type TypedWrappedFetch<OP> = _TypedWrappedFetch<OP> & {
+  _name: string
   Error: new (error: ApiError) => ApiError & {
     getActualType: () => OpErrorType<OP>
   }

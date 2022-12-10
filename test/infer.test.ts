@@ -8,7 +8,7 @@ import {
   OpErrorType,
   OpReturnType,
   TypedFetch,
-} from '../src'
+} from '..'
 import { paths as paths2 } from './examples/stripe-openapi2'
 import { paths as paths3 } from './examples/stripe-openapi3'
 import { TypedWrappedFetch } from '../src/types'

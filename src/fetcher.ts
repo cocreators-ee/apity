@@ -212,6 +212,8 @@ function createFetch<OP>(fetch: _TypedWrappedFetch<OP>): TypedWrappedFetch<OP> {
     }
   }
 
+  fun._name = ''
+
   return fun
 }
 
@@ -226,8 +228,8 @@ function fetcher<Paths>() {
     },
     path: <P extends keyof Paths>(path: P) => ({
       method: <M extends keyof Paths[P]>(method: M) => ({
-        create: ((queryParams?: Record<string, true | 1>) =>
-          createFetch((realFetch, payload, init) =>
+        create: function (queryParams?: Record<string, true | 1>) {
+          const fn = createFetch((realFetch, payload, init) =>
             fetchUrl({
               baseUrl: baseUrl || '',
               path: path as string,
@@ -237,7 +239,12 @@ function fetcher<Paths>() {
               init: mergeRequestInit(defaultInit, init),
               realFetch: realFetch,
             }),
-          )) as CreateFetch<M, Paths[P][M]>,
+          )
+
+          fn._name = `${String(method).toUpperCase()} ${path}`
+
+          return fn
+        } as CreateFetch<M, Paths[P][M]>,
       }),
     }),
   }
