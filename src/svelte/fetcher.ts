@@ -45,7 +45,7 @@ function fetchUrl<R>(request: Request) {
       } else {
         resp.set({
           status: fetchRes.status,
-          data: undefined,
+          data: j,
           errors: [],
           ok: false,
         })
