@@ -5,13 +5,13 @@ A typed fetch client for [openapi-typescript](https://github.com/drwpow/openapi-
 ### Install
 
 ```bash
-npm install openapi-typescript-fetch-svelte
+npm install @cocreators-ee/openapi-typescript-fetch-svelte
 ```
 
 Or
 
 ```bash
-pnpm add openapi-typescript-fetch-svelte
+pnpm add @cocreators-ee/openapi-typescript-fetch-svelte
 ```
 
 **Features**
