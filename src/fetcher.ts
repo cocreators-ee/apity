@@ -228,6 +228,7 @@ function fetcher<Paths>() {
     },
     path: <P extends keyof Paths>(path: P) => ({
       method: <M extends keyof Paths[P]>(method: M) => ({
+        // @ts-ignore
         create: function (queryParams?: Record<string, true | 1>) {
           const fn = createFetch((realFetch, payload, init) =>
             fetchUrl({
@@ -240,7 +241,7 @@ function fetcher<Paths>() {
               realFetch: realFetch,
             }),
           )
-
+          // @ts-ignore
           fn._name = `${String(method).toUpperCase()} ${path}`
 
           return fn

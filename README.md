@@ -1,20 +1,17 @@
-[![version(scoped)](https://img.shields.io/npm/v/openapi-typescript-fetch.svg)](https://www.npmjs.com/package/openapi-typescript-fetch)
-[![codecov](https://codecov.io/gh/ajaishankar/openapi-typescript-fetch/branch/main/graph/badge.svg?token=Z8GQ6M5KAR)](https://codecov.io/gh/ajaishankar/openapi-typescript-fetch)
-
-# 📘️ openapi-typescript-fetch-sveltekit
+# 📘️ openapi-typescript-fetch-svelte
 
 A typed fetch client for [openapi-typescript](https://github.com/drwpow/openapi-typescript) compatible with SvelteKit's custom `fetch`
 
 ### Install
 
 ```bash
-npm install https://github.com/lietu/openapi-typescript-fetch-sveltekit.git
+npm install openapi-typescript-fetch-svelte
 ```
 
 Or
 
 ```bash
-pnpm add https://github.com/lietu/openapi-typescript-fetch-sveltekit.git
+pnpm add openapi-typescript-fetch-svelte
 ```
 
 **Features**
