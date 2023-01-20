@@ -1,5 +1,5 @@
 {
-  "name": "openapi-typescript-fetch-svelte",
+  "name": "@cocreators-ee/openapi-typescript-fetch-svelte",
   "description": "A typed fetch client for openapi-typescript with Svelte support",
   "version": "0.0.1",
   "readme": "README.md",
