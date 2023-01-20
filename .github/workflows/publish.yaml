@@ -1,8 +1,11 @@
 name: Publish to NPM
 
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - 'feature/ci'
+#  release:
+#    types: [published]
 
 jobs:
   build:
