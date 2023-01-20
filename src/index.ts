@@ -1,4 +1,5 @@
 import { Fetcher } from './fetcher.js'
+import { SvelteFetcher } from './svelte'
 import { arrayRequestBody } from './utils.js'
 
 import type {
@@ -29,4 +30,4 @@ export type {
   TypedFetch,
 }
 
-export { Fetcher, ApiError, arrayRequestBody }
+export { Fetcher, SvelteFetcher, ApiError, arrayRequestBody }

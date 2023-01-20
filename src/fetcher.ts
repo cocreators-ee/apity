@@ -91,7 +91,7 @@ function getBody(method: Method, payload: any) {
   return method === 'delete' && body === '{}' ? undefined : body
 }
 
-function mergeRequestInit(
+export function mergeRequestInit(
   first?: RequestInit,
   second?: RequestInit,
 ): RequestInit {
@@ -107,7 +107,7 @@ function mergeRequestInit(
   return { ...first, ...second, headers }
 }
 
-function getFetchParams(request: Request) {
+export function getFetchParams(request: Request) {
   // clone payload
   // if body is a top level array [ 'a', 'b', param: value ] with param values
   // using spread [ ...payload ] returns [ 'a', 'b' ] and skips custom keys
