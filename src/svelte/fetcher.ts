@@ -74,12 +74,12 @@ function fetchUrl<R>(request: Request) {
 
 function createFetch<OP>(fetch: _TypedWrappedFetch<OP>): TypedWrappedFetch<OP> {
   const fun = (
-    realFetch: RealFetch,
     payload: OpArgType<OP>,
+    realFetch: RealFetch,
     init?: RequestInit,
   ) => {
     try {
-      return fetch(realFetch, payload, init)
+      return fetch(payload, realFetch, init)
     } catch (err) {
       if (err instanceof ApiError) {
         throw new fun.Error(err)
@@ -119,7 +119,7 @@ function fetcher<Paths>() {
     path: <P extends keyof Paths>(path: P) => ({
       method: <M extends keyof Paths[P]>(method: M) => ({
         create: function (queryParams?: Record<string, true | 1>) {
-          const fn = createFetch((realFetch, payload, init) =>
+          const fn = createFetch((payload, realFetch, init) =>
             // @ts-ignore
             fetchUrl({
               baseUrl: baseUrl || '',
