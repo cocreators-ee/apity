@@ -2,7 +2,7 @@
 
 A typed fetch client for [openapi-typescript](https://github.com/drwpow/openapi-typescript) compatible with SvelteKit's custom `fetch`
 
-### Install
+## Installation
 
 ```bash
 npm install @cocreators-ee/openapi-typescript-fetch-svelte
@@ -21,9 +21,9 @@ Supports JSON request and responses
 - ✅ [OpenAPI 3.0](https://swagger.io/specification)
 - ✅ [Swagger 2.0](https://swagger.io/specification/v2/)
 
-### Usage
+## Usage
 
-**Generate typescript definition from schema**
+### Generate typescript definition from schema
 
 ```bash
 npx openapi-typescript https://petstore.swagger.io/v2/swagger.json --output petstore.ts
@@ -32,7 +32,137 @@ npx openapi-typescript https://petstore.swagger.io/v2/swagger.json --output pets
 # 🚀 https://petstore.swagger.io/v2/swagger.json -> petstore.ts [650ms]
 ```
 
-**Typed fetch client**
+### Using SvelteFetcher
+
+Configure SvelteFetcher instance and generate functions for making API calls:
+
+```ts
+// File: api.ts
+
+import { SvelteFetcher } from '@cocreators-ee/openapi-typescript-fetch-svelte'
+import { paths } from './petstore'
+
+// declare fetcher for paths
+const fetcher = Fetcher.for<paths>()
+
+// global configuration
+fetcher.configure({
+  // Base URL to your API, e.g. `/` if you're serving API from the same domain
+  baseUrl: 'https://petstore.swagger.io/v2',
+  // RequestInit options, e.g. default headers
+  init: {
+    // mode: 'cors'
+    // headers: {}
+  },
+})
+
+// create fetch operations
+export const findPetsByStatus = fetcher
+  .path('/pet/findByStatus')
+  .method('get')
+  .create()
+export const addPet = fetcher.path('/pet').method('post').create()
+```
+
+Each API call is represented as a request object that has the following properties:
+
+```ts
+{
+  // Svelte store that contains a promise for an API call.
+  // If you reload the requets using reload() function, this store will be updated
+  ready,
+  // Promise for the initial API call. Will not be updated by `reload()` function.
+  // Usefull for server code and places where you can't use the `ready` store.
+  isLoaded,
+  // Svelte store containing the response of the API call.
+  resp,
+  // Function that reloads the request with the same parameteres
+  reload,
+}
+```
+
+Each response is a Svelte store returning either an `undefined`, or the following object:
+
+```ts
+{
+  // HTTP status code
+  status,
+    // Boolean, whether the request was successful or not
+    ok,
+    // Typed object for a 200/201 status. Built from the OpenAPI spec
+    data
+}
+```
+
+### Using SvelteFetcher with await syntax in templates
+
+```sveltehtml
+<script lang="ts">
+  import { findPetByStatus } from './api.ts'
+  const request = findPetByStatus({ status: 'sold' })
+  const petsReady = request.ready
+</script>
+
+<div>
+  {#await $petsReady}
+    <p>Loading..</p>
+  {:then resp}
+    {#if resp.ok}
+      {#each resp.data as pet}
+        <p>{pet.name}</p>
+      {/each}
+    {:else}
+      <p>Error while loading pets</p>
+    {/if}
+  {/await}
+
+  <button on:click={() => {request.reload()}}>
+    Reload pets
+  </button>
+</div>
+```
+
+### Subscribing to response store
+
+```sveltehtml
+<script lang="ts">
+  import { findPetByStatus } from './api.ts'
+  const request = findPetByStatus({ status: 'sold' })
+  let names = []
+
+  request.resp.subscribe(resp => {
+    if (resp.ok) {
+      names = resp.data.map(pet => pet.name)
+    }
+  })
+</script>
+
+<div>
+  {#each resp.data as pet}
+    <p>{pet.name}</p>
+  {/each}
+</div>
+```
+
+### Using in load functions
+
+Fetch operations support SvelteKit's [load](https://kit.svelte.dev/docs/load#making-fetch-requests) function from `+page.ts` and `+page.server.ts`:
+
+```ts
+export async function load({ fetch }) {
+  const request = findPetByStatus({ status: 'sold' })
+  const resp = await request.isLoaded
+  if (resp.ok) {
+    return { pets: resp.data }
+  } else {
+    return { pets: [] }
+  }
+}
+```
+
+### Using Fetcher in pure JavaScript
+
+If you work on non-Svelte project, then you can use `Fetcher` instead:
 
 ```ts
 import { Fetcher } from 'openapi-typescript-fetch'
@@ -45,25 +175,19 @@ const fetcher = Fetcher.for<paths>()
 // global configuration
 fetcher.configure({
   baseUrl: 'https://petstore.swagger.io/v2',
-  init: {
-    headers: {
-      ...
-    },
-  },
-  use: [...] // middlewares
 })
 
 // create fetch operations
-const findPetsByStatus = fetcher.path('/pet/findByStatus').method('get').create()
+const findPetsByStatus = fetcher
+  .path('/pet/findByStatus')
+  .method('get')
+  .create()
 const addPet = fetcher.path('/pet').method('post').create()
 
-// `fetch` may be the argument to `load()`
-// https://kit.svelte.dev/docs/load#making-fetch-requests
-const { status, data: pets } = await findPetsByStatus(fetch, {
-  status: ['available', 'pending'],
-})
-
-console.log(pets[0])
+const resp = await findPetsByStatus({ status: 'available' })
+console.log(resp.ok)
+console.log(resp.data)
+console.log(resp.status)
 ```
 
 ### Typed Error Handling
@@ -79,8 +203,8 @@ const findPetsByStatus = fetcher.path('/pet/findByStatus').method('get').create(
 const addPet = fetcher.path('/pet').method('post').create()
 
 try {
-  await findPetsByStatus(fetch, { ... })
-  await addPet(fetch, { ... })
+  await findPetsByStatus({ ... })
+  await addPet({ ... })
 } catch(e) {
   // check which operation threw the exception
   if (e instanceof addPet.Error) {
