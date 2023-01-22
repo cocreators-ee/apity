@@ -129,7 +129,7 @@ function fetcher<Paths>() {
               queryParams: Object.keys(queryParams || {}),
               payload,
               init: mergeRequestInit(defaultInit, init),
-              realFetch: realFetch,
+              realFetch: realFetch || fetch,
             }),
           )
 

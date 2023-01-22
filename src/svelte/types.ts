@@ -25,8 +25,8 @@ export type ApiRequest<R = any> = {
 }
 
 export type _SvelteTypedWrappedFetch<OP> = (
-  realFetch: RealFetch,
   arg: OpArgType<OP>,
+  realFetch: RealFetch,
   init?: RequestInit,
 ) => ApiRequest<OpReturnType<OP>>
 
