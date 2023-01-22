@@ -1,10 +1,5 @@
-import type { Readable, Writable } from 'svelte/store'
-import type {
-  OpArgType,
-  OpErrorType,
-  OpReturnType,
-  RealFetch,
-} from '../types'
+import type { Writable } from 'svelte/store'
+import type { OpArgType, OpErrorType, OpReturnType, RealFetch } from '../types'
 import type { ApiError } from '../types'
 
 export type SuccessfulResp<R> = {
@@ -46,7 +41,11 @@ type _SvelteCreateFetch<OP, Q = never> = [Q] extends [never]
   ? () => SvelteTypedWrappedFetch<OP>
   : (query: Q) => SvelteTypedWrappedFetch<OP>
 
-export type SvelteCreateFetch<M, OP> = M extends 'post' | 'put' | 'patch' | 'delete'
+export type SvelteCreateFetch<M, OP> = M extends
+  | 'post'
+  | 'put'
+  | 'patch'
+  | 'delete'
   ? OP extends { parameters: { query: infer Q } }
     ? _SvelteCreateFetch<OP, { [K in keyof Q]: true | 1 }>
     : _SvelteCreateFetch<OP>

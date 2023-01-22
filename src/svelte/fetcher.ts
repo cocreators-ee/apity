@@ -19,8 +19,9 @@ import { ApiError } from '../types'
 function fetchUrl<R>(request: Request) {
   const { url, init } = getFetchParams(request)
 
-  const resp = writable<ApiResponse<R> | undefined>()
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   const ready = writable<Promise<ApiResponse<R>>>(new Promise(() => {}))
+  const resp = writable<ApiResponse<R> | undefined>()
   let unsubscribe: Unsubscriber | undefined = undefined
 
   const apiCall: () => Promise<ApiResponse<R>> = () => {

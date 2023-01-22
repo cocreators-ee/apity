@@ -41,8 +41,8 @@
   "homepage": "https://github.com/cocreators-ee/openapi-typescript-fetch-svelte#readme",
   "devDependencies": {
     "@types/jest": "^27.0.0",
-    "@typescript-eslint/eslint-plugin": "^4.30.0",
-    "@typescript-eslint/parser": "^4.31.0",
+    "@typescript-eslint/eslint-plugin": "^5.48.2",
+    "@typescript-eslint/parser": "^5.48.2",
     "codecov": "^3.8.2",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",

@@ -2,7 +2,7 @@ import 'whatwg-fetch'
 
 import { server } from './mocks/server'
 import { ApiError, arrayRequestBody, Fetcher } from '..'
-import { Data, paths } from './paths'
+import { paths } from './paths'
 
 beforeAll(() => server.listen())
 afterEach(() => server.resetHandlers())
@@ -35,12 +35,15 @@ describe('fetch', () => {
   it('GET /query/{a}/{b}', async () => {
     const fun = fetcher.path('/query/{a}/{b}').method('get').create()
 
-    const { ok, status, statusText, data } = await fun(fetch, {
-      a: 1,
-      b: '/',
-      scalar: 'a',
-      list: ['b', 'c'],
-    })
+    const { ok, status, statusText, data } = await fun(
+      {
+        a: 1,
+        b: '/',
+        scalar: 'a',
+        list: ['b', 'c'],
+      },
+      fetch,
+    )
 
     expect(data.params).toEqual({ a: '1', b: '%2F' })
     expect(data.query).toEqual({ scalar: 'a', list: ['b', 'c'] })
@@ -56,10 +59,13 @@ describe('fetch', () => {
     it(`${method.toUpperCase()} /body/{id}`, async () => {
       const fun = fetcher.path('/body/{id}').method(method).create()
 
-      const { data } = await fun(fetch, {
-        id: 1,
-        list: ['b', 'c'],
-      })
+      const { data } = await fun(
+        {
+          id: 1,
+          list: ['b', 'c'],
+        },
+        fetch,
+      )
 
       expect(data.params).toEqual({ id: '1' })
       expect(data.body).toEqual({ list: ['b', 'c'] })
@@ -72,7 +78,7 @@ describe('fetch', () => {
     it(`${method.toUpperCase()} /bodyarray/{id}`, async () => {
       const fun = fetcher.path('/bodyarray/{id}').method(method).create()
 
-      const { data } = await fun(fetch, arrayRequestBody(['b', 'c'], { id: 1 }))
+      const { data } = await fun(arrayRequestBody(['b', 'c'], { id: 1 }), fetch)
 
       expect(data.params).toEqual({ id: '1' })
       expect(data.body).toEqual(['b', 'c'])
@@ -88,11 +94,14 @@ describe('fetch', () => {
         .method(method)
         .create({ scalar: 1 })
 
-      const { data } = await fun(fetch, {
-        id: 1,
-        scalar: 'a',
-        list: ['b', 'c'],
-      })
+      const { data } = await fun(
+        {
+          id: 1,
+          scalar: 'a',
+          list: ['b', 'c'],
+        },
+        fetch,
+      )
 
       expect(data.params).toEqual({ id: '1' })
       expect(data.body).toEqual({ list: ['b', 'c'] })
@@ -104,7 +113,7 @@ describe('fetch', () => {
   it(`DELETE /body/{id} (empty body)`, async () => {
     const fun = fetcher.path('/body/{id}').method('delete').create()
 
-    const { data } = await fun(fetch, { id: 1 } as any)
+    const { data } = await fun({ id: 1 } as any, fetch)
 
     expect(data.params).toEqual({ id: '1' })
     expect(data.headers).toHaveProperty('accept')
@@ -113,7 +122,7 @@ describe('fetch', () => {
 
   it(`POST /nocontent`, async () => {
     const fun = fetcher.path('/nocontent').method('post').create()
-    const { status, data } = await fun(fetch, undefined)
+    const { status, data } = await fun(undefined, fetch)
     expect(status).toBe(204)
     expect(data).toBeUndefined()
   })
@@ -124,7 +133,7 @@ describe('fetch', () => {
     const fun = fetcher.path('/error/{status}').method('get').create()
 
     try {
-      await fun(fetch, { status: 400 })
+      await fun({ status: 400 }, fetch)
     } catch (err) {
       expect(err instanceof ApiError).toBe(true)
       expect(err instanceof fun.Error).toBe(true)
@@ -164,7 +173,7 @@ describe('fetch', () => {
 
     for (const status of [400, 500, 503]) {
       try {
-        await fun(fetch, { status, detail: true })
+        await fun({ status, detail: true }, fetch)
       } catch (e) {
         handleError(e)
       }
@@ -182,7 +191,7 @@ describe('fetch', () => {
     const fun = fetcher.path('/defaulterror').method('get').create()
 
     try {
-      await fun(fetch, {})
+      await fun({}, fetch, {})
     } catch (e) {
       if (e instanceof fun.Error) {
         const error = e.getActualType()
@@ -198,7 +207,7 @@ describe('fetch', () => {
     const fun = fetcher.path('/networkerror').method('get').create()
 
     try {
-      await fun(fetch, {})
+      await fun({}, fetch, {})
     } catch (e) {
       expect(e).not.toBeInstanceOf(ApiError)
     }
@@ -216,13 +225,13 @@ describe('fetch', () => {
     const fun = fetcher.path('/query/{a}/{b}').method('get').create()
 
     const { data } = await fun(
-      fetch,
       {
         a: 1,
         b: '2',
         scalar: 'a',
         list: ['b', 'c'],
       },
+      fetch,
       {
         headers: { admin: 'true' },
         credentials: 'include',
@@ -231,5 +240,4 @@ describe('fetch', () => {
 
     expect(data.headers).toEqual({ ...expectedHeaders, admin: 'true' })
   })
-
 })
