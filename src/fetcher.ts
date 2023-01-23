@@ -185,7 +185,7 @@ async function fetchUrl<R>(request: Request) {
 function createFetch<OP>(fetch: _TypedWrappedFetch<OP>): TypedWrappedFetch<OP> {
   const fun = async (
     payload: OpArgType<OP>,
-    realFetch: RealFetch,
+    realFetch?: RealFetch,
     init?: RequestInit,
   ) => {
     try {
@@ -238,7 +238,7 @@ function fetcher<Paths>() {
               queryParams: Object.keys(queryParams || {}),
               payload,
               init: mergeRequestInit(defaultInit, init),
-              realFetch: realFetch,
+              realFetch: realFetch || fetch,
             }),
           )
           // @ts-ignore

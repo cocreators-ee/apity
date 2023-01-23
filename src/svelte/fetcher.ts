@@ -74,7 +74,7 @@ function fetchUrl<R>(request: Request) {
 function createFetch<OP>(fetch: _TypedWrappedFetch<OP>): TypedWrappedFetch<OP> {
   const fun = (
     payload: OpArgType<OP>,
-    realFetch: RealFetch,
+    realFetch?: RealFetch,
     init?: RequestInit,
   ) => {
     try {
