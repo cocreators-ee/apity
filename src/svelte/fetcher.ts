@@ -40,14 +40,12 @@ function fetchUrl<R>(request: Request) {
         resp.set({
           status: fetchRes.status,
           data: j as R,
-          errors: [],
           ok: true,
         })
       } else {
         resp.set({
           status: fetchRes.status,
           data: j,
-          errors: [],
           ok: false,
         })
       }

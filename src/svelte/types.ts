@@ -5,13 +5,11 @@ import type { ApiError } from '../types'
 export type SuccessfulResp<R> = {
   ok: true
   data: R
-  errors: unknown[]
   status: number
 }
 export type FailedResp = {
   ok: false
   data: any
-  errors: unknown[]
   status: number
 }
 
