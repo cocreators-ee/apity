@@ -1,17 +1,17 @@
-# 📘️ openapi-typescript-fetch-svelte
+# 📘️ apity - Typed API client for Svelte and SvelteKit
 
 A typed fetch client for [openapi-typescript](https://github.com/drwpow/openapi-typescript) compatible with SvelteKit's custom `fetch`
 
 ## Installation
 
 ```bash
-npm install @cocreators-ee/openapi-typescript-fetch-svelte
+npm install @cocreators-ee/apity
 ```
 
 Or
 
 ```bash
-pnpm add @cocreators-ee/openapi-typescript-fetch-svelte
+pnpm add @cocreators-ee/apity
 ```
 
 **Features**
@@ -39,7 +39,7 @@ Configure SvelteFetcher instance and generate functions for making API calls:
 ```ts
 // File: api.ts
 
-import { SvelteFetcher } from '@cocreators-ee/openapi-typescript-fetch-svelte'
+import { SvelteFetcher } from '@cocreators-ee/apity'
 import { paths } from './petstore'
 
 // declare fetcher for paths
@@ -87,10 +87,10 @@ Each response is a Svelte store returning either an `undefined`, or the followin
 {
   // HTTP status code
   status,
-    // Boolean, whether the request was successful or not
-    ok,
-    // Typed object for a 200/201 status. Built from the OpenAPI spec
-    data
+  // Boolean, whether the request was successful or not
+  ok,
+  // Typed object for a 200/201 status. Built from the OpenAPI spec
+  data,
 }
 ```
 

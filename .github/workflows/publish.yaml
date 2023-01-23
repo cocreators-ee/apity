@@ -1,9 +1,9 @@
 name: Publish to NPM
 
 on:
-  push:
-    branches:
-      - 'svelte-fetcher'
+  #  push:
+  #    branches:
+  #      - 'svelte-fetcher'
   release:
     types: [published]
 

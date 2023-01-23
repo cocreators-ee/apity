@@ -1,7 +1,7 @@
 {
-  "name": "@cocreators-ee/openapi-typescript-fetch-svelte",
+  "name": "@cocreators-ee/apity",
   "description": "A typed fetch client for openapi-typescript with Svelte support",
-  "version": "0.0.2-a3",
+  "version": "0.0.1",
   "readme": "README.md",
   "engines": {
     "node": ">= 12.0.0",
@@ -17,11 +17,13 @@
     "require": "./dist/cjs/index.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "LICENSE",
+    "README.md"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/cocreators-ee/openapi-typescript-fetch-svelte"
+    "url": "https://github.com/cocreators-ee/apity"
   },
   "keywords": [
     "fetch",
@@ -36,9 +38,9 @@
     "sveltekit"
   ],
   "bugs": {
-    "url": "https://github.com/cocreators-ee/openapi-typescript-fetch-svelte/issues"
+    "url": "https://github.com/cocreators-ee/apity/issues"
   },
-  "homepage": "https://github.com/cocreators-ee/openapi-typescript-fetch-svelte#readme",
+  "homepage": "https://github.com/cocreators-ee/apity#readme",
   "devDependencies": {
     "@types/jest": "^27.0.0",
     "@typescript-eslint/eslint-plugin": "^5.48.2",
@@ -51,6 +53,7 @@
     "msw": "^0.35.0",
     "prettier": "^2.4.0",
     "rimraf": "^3.0.0",
+    "svelte": "^3.55.1",
     "ts-jest": "^27.0.0",
     "ts-node": "^10.0.0",
     "typescript": "^4.4.3",
@@ -71,8 +74,5 @@
     "test:coverage:local": "pnpm run build && jest --no-cache --collectCoverage",
     "typecheck": "tsc --noEmit --project tsconfig.json",
     "format": "prettier -w ."
-  },
-  "dependencies": {
-    "svelte": "^3.55.1"
   }
 }
