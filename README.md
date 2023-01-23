@@ -96,7 +96,7 @@ Each response is a Svelte store returning either an `undefined`, or the followin
 
 ### Using SvelteFetcher with await syntax in templates
 
-```sveltehtml
+```svelte
 <script lang="ts">
   import { findPetByStatus } from './api.ts'
   const request = findPetByStatus({ status: 'sold' })
@@ -124,7 +124,7 @@ Each response is a Svelte store returning either an `undefined`, or the followin
 
 ### Subscribing to response store
 
-```sveltehtml
+```svelte
 <script lang="ts">
   import { findPetByStatus } from './api.ts'
   const request = findPetByStatus({ status: 'sold' })
