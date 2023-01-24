@@ -157,6 +157,8 @@ Fetch operations support SvelteKit's [load](https://kit.svelte.dev/docs/load#mak
 export async function load({ fetch }) {
   const request = findPetByStatus({ status: 'sold' })
   const resp = await request.onData
-  return { resp }
+  // returning the entire request to a page in order to be able to `reload()` it.
+  // `request.resp.data` is already available
+  return { request }
 }
 ```
