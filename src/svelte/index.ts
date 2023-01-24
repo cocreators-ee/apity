@@ -1,3 +1,3 @@
-import { SvelteFetcher } from './fetcher'
+import { Apity } from './fetcher'
 
-export { SvelteFetcher }
+export { Apity }

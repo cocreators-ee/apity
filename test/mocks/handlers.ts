@@ -4,6 +4,7 @@ function getQuery(req: RestRequest) {
   const { searchParams } = req.url
   const query = {} as any
 
+  // @ts-ignore
   for (const key of searchParams.keys()) {
     const value = searchParams.getAll(key)
     query[key] = value.length === 1 ? value[0] : value.sort()

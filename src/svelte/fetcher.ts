@@ -27,13 +27,13 @@ function fetchUrl<R>(request: Request) {
   const apiCall: () => Promise<ApiResponse<R>> = () => {
     const promise = new Promise<ApiResponse<R>>(async (resolve) => {
       const fetchRes = await request.realFetch(url, init)
-      const j = await fetchRes.json()
+
+      const j = fetchRes.status === 204 ? undefined : await fetchRes.json()
 
       unsubscribe = resp.subscribe((r) => {
-        if (typeof r === 'undefined' || typeof r.data === 'undefined') {
-          return
+        if (typeof r !== 'undefined' && r.data === j) {
+          resolve(r)
         }
-        resolve(r)
       })
 
       if (fetchRes.ok) {
@@ -54,7 +54,7 @@ function fetchUrl<R>(request: Request) {
     return promise
   }
 
-  const isLoaded = apiCall()
+  const onData = apiCall()
 
   async function reload() {
     if (unsubscribe) {
@@ -67,7 +67,7 @@ function fetchUrl<R>(request: Request) {
     resp,
     ready,
     reload,
-    isLoaded,
+    onData,
   } as ApiRequest<R>
 }
 
@@ -140,6 +140,6 @@ function fetcher<Paths>() {
   }
 }
 
-export const SvelteFetcher = {
+export const Apity = {
   for: <Paths extends OpenapiPaths<Paths>>() => fetcher<Paths>(),
 }
