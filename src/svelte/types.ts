@@ -16,9 +16,9 @@ export type ApiResponse<R> = SuccessfulResp<R> | FailedResp
 
 export type ApiRequest<R = any> = {
   readonly resp: Writable<ApiResponse<R> | undefined>
-  readonly onData: Promise<ApiResponse<R>>
   readonly ready: Writable<undefined | Promise<ApiResponse<R>>>
-  readonly reload: () => Promise<ApiResponse<R>>
+  reload: () => Promise<ApiResponse<R>>
+  onData: Promise<ApiResponse<R>>
 }
 
 export type SvelteTypedWrappedFetch<OP> = (

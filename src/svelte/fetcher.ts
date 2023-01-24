@@ -24,6 +24,14 @@ function fetchUrl<R>(request: Request) {
   const resp = writable<ApiResponse<R> | undefined>()
   let unsubscribe: Unsubscriber | undefined = undefined
 
+  const retVal = {
+    resp,
+    ready,
+    reload,
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    onData: new Promise(() => {}),
+  } as ApiRequest<R>
+
   const apiCall: () => Promise<ApiResponse<R>> = () => {
     const promise = new Promise<ApiResponse<R>>(async (resolve) => {
       const fetchRes = await request.realFetch(url, init)
@@ -33,6 +41,11 @@ function fetchUrl<R>(request: Request) {
       unsubscribe = resp.subscribe((r) => {
         if (typeof r !== 'undefined' && r.data === j) {
           resolve(r)
+          retVal.onData = Promise.resolve(r)
+          if (unsubscribe) {
+            unsubscribe()
+            unsubscribe = undefined
+          }
         }
       })
 
@@ -54,21 +67,19 @@ function fetchUrl<R>(request: Request) {
     return promise
   }
 
-  const onData = apiCall()
-
   async function reload() {
     if (unsubscribe) {
       unsubscribe()
+      unsubscribe = undefined
     }
-    return apiCall()
+    const apiCallPromise = apiCall()
+    retVal.onData = apiCallPromise
+    return apiCallPromise
   }
 
-  return {
-    resp,
-    ready,
-    reload,
-    onData,
-  } as ApiRequest<R>
+  retVal.onData = apiCall()
+  retVal.reload = reload
+  return retVal
 }
 
 function createFetch<OP>(fetch: _TypedWrappedFetch<OP>): TypedWrappedFetch<OP> {

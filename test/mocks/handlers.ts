@@ -37,6 +37,21 @@ function getResult(
   )
 }
 
+let counter = 0
+
+function getCounterResult(
+  req: RestRequest,
+  res: ResponseComposition,
+  ctx: RestContext,
+) {
+  counter += 1
+  return res(
+    ctx.json({
+      counter,
+    }),
+  )
+}
+
 const HOST = 'https://api.backend.dev'
 
 const methods = {
@@ -50,6 +65,7 @@ const methods = {
   withBodyAndQuery: ['post', 'put', 'patch', 'delete'].map((method) => {
     return (rest as any)[method](`${HOST}/bodyquery/:id`, getResult)
   }),
+  counter: (rest as any)['get'](`${HOST}/counter`, getCounterResult),
   withError: [
     rest.get(`${HOST}/error/:status`, (req, res, ctx) => {
       const status = Number(req.params.status)
@@ -78,6 +94,7 @@ const methods = {
 }
 
 export const handlers = [
+  methods.counter,
   ...methods.withQuery,
   ...methods.withBody,
   ...methods.withBodyArray,

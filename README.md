@@ -74,14 +74,14 @@ Each API call is represented as a request object that has the following properti
 ```ts
 {
   // Svelte store that contains a promise for an API call.
-  // If you reload the requets using reload() function, this store will be updated
+  // If you reload the requets using reload() function, this store will be updated.
   ready,
-  // Promise for the initial API call. Will not be updated by `reload()` function.
+  // Promise for the API call.
   // Useful for server code and places where you can't use the `ready` store.
   onData,
   // Svelte store containing the response of the API call.
   resp,
-  // Function that reloads the request with the same parameteres
+  // Function that reloads the request with the same parameteres.
   reload,
 }
 ```
