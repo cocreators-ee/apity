@@ -69,6 +69,14 @@ export type paths = {
       }
     }
   }
+  '/counter': {
+    get: {
+      parameters: {}
+      responses: {
+        200: { counter: number }
+      }
+    }
+  }
   '/error/{status}': {
     get: {
       parameters: {

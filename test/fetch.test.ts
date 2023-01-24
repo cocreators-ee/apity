@@ -140,4 +140,19 @@ describe('fetch', () => {
     const { data } = await request.onData
     expect(data.headers).toEqual({ ...expectedHeaders, admin: 'true' })
   })
+
+  it('reloads', async () => {
+    const fun = apity.path('/counter').method('get').create()
+
+    const request = fun({})
+    const { data } = await request.onData
+    expect(data.counter).toEqual(1)
+
+    const secondResp = await request.reload()
+    expect(secondResp.data.counter).toEqual(2)
+
+    request.reload()
+    const thirdResp = await request.onData
+    expect(thirdResp.data.counter).toEqual(3)
+  })
 })
