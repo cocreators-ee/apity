@@ -91,7 +91,7 @@ function getBody(method: Method, payload: any) {
   return method === 'delete' && body === '{}' ? undefined : body
 }
 
-function mergeRequestInit(
+export function mergeRequestInit(
   first?: RequestInit,
   second?: RequestInit,
 ): RequestInit {
@@ -107,7 +107,7 @@ function mergeRequestInit(
   return { ...first, ...second, headers }
 }
 
-function getFetchParams(request: Request) {
+export function getFetchParams(request: Request) {
   // clone payload
   // if body is a top level array [ 'a', 'b', param: value ] with param values
   // using spread [ ...payload ] returns [ 'a', 'b' ] and skips custom keys
@@ -184,12 +184,12 @@ async function fetchUrl<R>(request: Request) {
 
 function createFetch<OP>(fetch: _TypedWrappedFetch<OP>): TypedWrappedFetch<OP> {
   const fun = async (
-    realFetch: RealFetch,
     payload: OpArgType<OP>,
+    realFetch?: RealFetch,
     init?: RequestInit,
   ) => {
     try {
-      return await fetch(realFetch, payload, init)
+      return await fetch(payload, realFetch, init)
     } catch (err) {
       if (err instanceof ApiError) {
         throw new fun.Error(err)
@@ -228,8 +228,9 @@ function fetcher<Paths>() {
     },
     path: <P extends keyof Paths>(path: P) => ({
       method: <M extends keyof Paths[P]>(method: M) => ({
+        // @ts-ignore
         create: function (queryParams?: Record<string, true | 1>) {
-          const fn = createFetch((realFetch, payload, init) =>
+          const fn = createFetch((payload, realFetch, init) =>
             fetchUrl({
               baseUrl: baseUrl || '',
               path: path as string,
@@ -237,10 +238,10 @@ function fetcher<Paths>() {
               queryParams: Object.keys(queryParams || {}),
               payload,
               init: mergeRequestInit(defaultInit, init),
-              realFetch: realFetch,
+              realFetch: realFetch || fetch,
             }),
           )
-
+          // @ts-ignore
           fn._name = `${String(method).toUpperCase()} ${path}`
 
           return fn

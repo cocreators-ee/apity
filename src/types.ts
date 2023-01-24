@@ -99,8 +99,8 @@ export type _TypedFetch<OP> = (
 ) => Promise<ApiResponse<OpReturnType<OP>>>
 
 export type _TypedWrappedFetch<OP> = (
-  realFetch: RealFetch,
   arg: OpArgType<OP>,
+  realFetch?: RealFetch,
   init?: RequestInit,
 ) => Promise<ApiResponse<OpReturnType<OP>>>
 

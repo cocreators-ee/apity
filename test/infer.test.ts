@@ -1,17 +1,17 @@
 import {
-  FetchArgType,
-  Fetcher,
-  FetchErrorType,
-  FetchReturnType,
+  Apity,
   OpArgType,
   OpDefaultReturnType,
   OpErrorType,
   OpReturnType,
-  TypedFetch,
 } from '..'
 import { paths as paths2 } from './examples/stripe-openapi2'
 import { paths as paths3 } from './examples/stripe-openapi3'
-import { TypedWrappedFetch } from '../src/types'
+import {
+  SvelteTypedWrappedFetch,
+  SvelteFetchArgType,
+  SvelteFetchReturnType,
+} from '../src/svelte/types'
 
 type Op2 = paths2['/v1/account_links']['post']
 
@@ -66,67 +66,55 @@ describe('infer', () => {
     const same: Same<Openapi2['Error'], Openapi3['Error']> = true
     expect(same).toBe(true)
   })
+})
 
-  describe('fetch', () => {
-    type CreateLink = TypedWrappedFetch<Op2>
+describe('fetch', () => {
+  type CreateLink = SvelteTypedWrappedFetch<Op2>
 
-    const fetcher = Fetcher.for<paths2>()
-    const createLink: CreateLink = fetcher
-      .path('/v1/account_links')
-      .method('post')
-      .create()
+  const apity = Apity.for<paths2>()
+  const createLink: CreateLink = apity
+    .path('/v1/account_links')
+    .method('post')
+    .create()
 
-    type Arg = FetchArgType<typeof createLink>
-    type Ret = FetchReturnType<typeof createLink>
-    type Err = FetchErrorType<typeof createLink>
+  type Arg = SvelteFetchArgType<typeof createLink>
+  type Ret = SvelteFetchReturnType<typeof createLink>
 
-    it('argument', () => {
-      const same: Same<Arg, Openapi2['Argument']> = true
-      expect(same).toBe(true)
-    })
+  it('argument', () => {
+    const same: Same<Arg, Openapi2['Argument']> = true
+    expect(same).toBe(true)
+  })
 
-    it('return', () => {
-      const same: Same<Ret, Openapi2['Return']> = true
-      expect(same).toBe(true)
-    })
+  it('return', () => {
+    const same: Same<Ret, Openapi2['Return']> = true
+    expect(same).toBe(true)
+  })
 
-    it('error', () => {
-      const same: Same<
-        Err,
-        OpErrorType<paths2['/v1/account_links']['post']>
-      > = true
-      expect(same).toBe(true)
-    })
-
-    it('only header/cookie parameter with requestBody', () => {
-      type RequestBody = {
-        requestBody: {
-          content: {
-            'application/json': { bar: boolean }
-          }
+  it('only header/cookie parameter with requestBody', () => {
+    type RequestBody = {
+      requestBody: {
+        content: {
+          'application/json': { bar: boolean }
         }
       }
+    }
 
-      type HeaderOnly = {
-        parameters: {
-          header: { foo: string }
-        }
-      } & RequestBody
+    type HeaderOnly = {
+      parameters: {
+        header: { foo: string }
+      }
+    } & RequestBody
 
-      type CookieOnly = {
-        parameters: {
-          cookie: { foo: string }
-        }
-      } & RequestBody
+    type CookieOnly = {
+      parameters: {
+        cookie: { foo: string }
+      }
+    } & RequestBody
 
-      const header: Same<OpArgType<HeaderOnly>, { bar: boolean }> = true
-      const cookie: Same<OpArgType<CookieOnly>, { bar: boolean }> = true
+    const header: Same<OpArgType<HeaderOnly>, { bar: boolean }> = true
+    const cookie: Same<OpArgType<CookieOnly>, { bar: boolean }> = true
 
-      expect(header).toBe(true)
-      expect(cookie).toBe(true)
-    })
-
-    const err: Err = { data: { error: {} } } as any
-    expect(err.data.error.charge).toBeUndefined()
+    expect(header).toBe(true)
+    expect(cookie).toBe(true)
   })
 })

@@ -1,0 +1,29 @@
+name: Publish to NPM
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        name: 'Setup Node'
+        with:
+          node-version: 16
+          registry-url: https://registry.npmjs.org/
+      - uses: pnpm/action-setup@v2
+        name: 'Install pnpm'
+        with:
+          version: 7
+          run_install: false
+      - run: pnpm install
+        name: 'Install dependencies'
+      - run: pnpm test
+        name: 'Run tests'
+      - run: npm publish --access public
+        name: 'Publish to NPM'
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

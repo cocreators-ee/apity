@@ -1,0 +1,24 @@
+name: Test library
+
+on:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        name: 'Setup Node'
+        with:
+          node-version: 16
+          registry-url: https://registry.npmjs.org/
+      - uses: pnpm/action-setup@v2
+        name: 'Install pnpm'
+        with:
+          version: 7
+          run_install: false
+      - run: pnpm install
+        name: 'Install dependencies'
+      - run: pnpm test
+        name: 'Run tests'
