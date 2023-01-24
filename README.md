@@ -94,7 +94,7 @@ Each response is a Svelte store returning either an `undefined`, or the followin
   status,
   // Boolean, whether the request was successful or not
   ok,
-  // Typed object for a successfull request. Built from the OpenAPI spec
+  // Typed object for a successful request. Built from the OpenAPI spec
   data,
 }
 ```
