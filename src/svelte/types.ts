@@ -1,5 +1,5 @@
 import type { Writable } from 'svelte/store'
-import type { OpArgType, OpReturnType, RealFetch } from '../types'
+import type { OpArgType, OpReturnType, RealFetch } from '../types.js'
 
 export type SuccessfulResp<R> = {
   ok: true

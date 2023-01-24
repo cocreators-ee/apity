@@ -9,13 +9,9 @@
   },
   "author": "Cocreators OÜ",
   "license": "MIT",
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
-  "exports": {
-    "browser": "./dist/esm/index.js",
-    "import": "./dist/esm/index.js",
-    "require": "./dist/cjs/index.js"
-  },
+  "main": "./dist/index.js",
+  "type": "module",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist",
     "LICENSE",
@@ -66,7 +62,7 @@
   },
   "scripts": {
     "clean": "rimraf './dist'",
-    "build": "pnpm run clean && tsc --project tsconfig.json && tsc --project tsconfig.cjs.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json && echo '{\"type\":\"module\"}' > dist/esm/package.json",
+    "build": "pnpm run clean && tsc --project tsconfig.json",
     "lint": "eslint .",
     "prepare": "pnpm run build",
     "test": "pnpm run build && jest",

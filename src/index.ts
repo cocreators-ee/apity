@@ -1,4 +1,4 @@
-import { Apity } from './svelte'
+import { Apity } from './svelte/index.js'
 import { arrayRequestBody } from './utils.js'
 
 import type {
@@ -12,7 +12,7 @@ import type {
   OpDefaultReturnType,
   OpReturnType,
   TypedFetch,
-} from './types'
+} from './types.js'
 
 import { ApiError } from './types.js'
 

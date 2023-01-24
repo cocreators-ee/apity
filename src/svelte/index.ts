@@ -1,3 +1,3 @@
-import { Apity } from './fetcher'
+import { Apity } from './fetcher.js'
 
 export { Apity }
