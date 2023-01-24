@@ -77,7 +77,7 @@ Each API call is represented as a request object that has the following properti
   // If you reload the requets using reload() function, this store will be updated
   ready,
   // Promise for the initial API call. Will not be updated by `reload()` function.
-  // Usefull for server code and places where you can't use the `ready` store.
+  // Useful for server code and places where you can't use the `ready` store.
   onData,
   // Svelte store containing the response of the API call.
   resp,
