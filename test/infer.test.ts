@@ -4,7 +4,8 @@ import {
   OpDefaultReturnType,
   OpErrorType,
   OpReturnType,
-} from '..'
+} from '../src'
+import { describe, it, expect } from 'vitest'
 import { paths as paths2 } from './examples/stripe-openapi2'
 import { paths as paths3 } from './examples/stripe-openapi3'
 import {
