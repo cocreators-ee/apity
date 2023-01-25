@@ -21,7 +21,7 @@ jobs:
           run_install: false
       - run: pnpm install
         name: 'Install dependencies'
-      - run: pnpm test
+      - run: pnpm test:ci
         name: 'Run tests'
       - run: npm publish --access public
         name: 'Publish to NPM'

@@ -1,8 +1,7 @@
-import { Apity } from './svelte'
+import { Apity } from './svelte/index.js'
 import { arrayRequestBody } from './utils.js'
 
 import type {
-  ApiResponse,
   FetchArgType,
   FetchReturnType,
   FetchErrorType,
@@ -12,8 +11,8 @@ import type {
   OpDefaultReturnType,
   OpReturnType,
   TypedFetch,
-} from './types'
-
+} from './types.js'
+import type { ApiResponse, ApiRequest } from './svelte/types.js'
 import { ApiError } from './types.js'
 
 export type {
@@ -25,6 +24,7 @@ export type {
   FetchReturnType,
   FetchErrorType,
   ApiResponse,
+  ApiRequest,
   Middleware,
   TypedFetch,
 }

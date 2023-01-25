@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store'
 import type { Unsubscriber } from 'svelte/store'
 
-import { getFetchParams, mergeRequestInit } from '../fetcher'
+import { getFetchParams, mergeRequestInit } from '../fetcher.js'
 import type {
   Request,
   TypedWrappedFetch,
@@ -12,9 +12,9 @@ import type {
   OpErrorType,
   OpenapiPaths,
   Method,
-} from '../types'
-import type { ApiRequest, ApiResponse, SvelteCreateFetch } from './types'
-import { ApiError } from '../types'
+} from '../types.js'
+import type { ApiRequest, ApiResponse, SvelteCreateFetch } from './types.js'
+import { ApiError } from '../types.js'
 
 function fetchUrl<R>(request: Request) {
   const { url, init } = getFetchParams(request)

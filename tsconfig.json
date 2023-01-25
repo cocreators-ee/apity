@@ -1,7 +1,19 @@
 {
   "compilerOptions": {
-    "module": "ES2020",
-    "outDir": "./dist/esm"
+    "baseUrl": "./src",
+    "declaration": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "lib": ["dom", "dom.iterable", "ES2018"],
+    "moduleResolution": "NodeNext",
+    "noImplicitReturns": true,
+    "removeComments": true,
+    "sourceMap": true,
+    "strict": true,
+    "target": "ES2020",
+    "module": "Node16",
+    "useDefineForClassFields": true,
+    "outDir": "./dist"
   },
-  "extends": "./tsconfig.base.json"
+  "include": ["src"]
 }

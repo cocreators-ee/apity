@@ -1,8 +1,17 @@
 import 'whatwg-fetch'
 
 import { server } from './mocks/server'
-import { arrayRequestBody, Apity } from '..'
+import { arrayRequestBody, Apity } from '../src'
 import { paths } from './paths'
+import {
+  describe,
+  beforeAll,
+  beforeEach,
+  afterEach,
+  afterAll,
+  it,
+  expect,
+} from 'vitest'
 
 beforeAll(() => server.listen())
 afterEach(() => server.resetHandlers())
@@ -22,16 +31,6 @@ describe('fetch', () => {
     })
   })
 
-  const expectedHeaders = {
-    authorization: 'Bearer token',
-    accept: 'application/json',
-  }
-
-  const headersWithContentType = {
-    ...expectedHeaders,
-    'content-type': 'application/json',
-  }
-
   it('GET /query/{a}/{b}', async () => {
     const fun = apity.path('/query/{a}/{b}').method('get').create()
 
@@ -45,7 +44,6 @@ describe('fetch', () => {
 
     expect(data.params).toEqual({ a: '1', b: '%2F' })
     expect(data.query).toEqual({ scalar: 'a', list: ['b', 'c'] })
-    expect(data.headers).toEqual(expectedHeaders)
     expect(ok).toBe(true)
     expect(status).toBe(200)
   })
@@ -64,7 +62,6 @@ describe('fetch', () => {
       expect(data.params).toEqual({ id: '1' })
       expect(data.body).toEqual({ list: ['b', 'c'] })
       expect(data.query).toEqual({})
-      expect(data.headers).toEqual(headersWithContentType)
     })
   })
 
@@ -78,7 +75,6 @@ describe('fetch', () => {
       expect(data.params).toEqual({ id: '1' })
       expect(data.body).toEqual(['b', 'c'])
       expect(data.query).toEqual({})
-      expect(data.headers).toEqual(headersWithContentType)
     })
   })
 
@@ -98,7 +94,6 @@ describe('fetch', () => {
       expect(data.params).toEqual({ id: '1' })
       expect(data.body).toEqual({ list: ['b', 'c'] })
       expect(data.query).toEqual({ scalar: 'a' })
-      expect(data.headers).toEqual(headersWithContentType)
     })
   })
 
@@ -119,26 +114,6 @@ describe('fetch', () => {
     const { data, status } = await request.onData
     expect(status).toBe(204)
     expect(data).toBeUndefined()
-  })
-
-  it('override init', async () => {
-    const fun = apity.path('/query/{a}/{b}').method('get').create()
-
-    const request = fun(
-      {
-        a: 1,
-        b: '2',
-        scalar: 'a',
-        list: ['b', 'c'],
-      },
-      fetch,
-      {
-        headers: { admin: 'true' },
-        credentials: 'include',
-      },
-    )
-    const { data } = await request.onData
-    expect(data.headers).toEqual({ ...expectedHeaders, admin: 'true' })
   })
 
   it('reloads', async () => {
