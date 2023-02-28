@@ -33,7 +33,7 @@ On the roadmap:
 Before working with the library, you need to generate an API spec using [openapi-typescript](https://www.npmjs.com/package/openapi-typescript):
 
 ```bash
-npx openapi-typescript https://petstore3.swagger.io/ --output petstore.ts
+npx openapi-typescript https://petstore3.swagger.io/api/v3/openapi.json --output petstore.ts
 
 🚀 https://petstore3.swagger.io/api/v3/openapi.json → file:.petstore.ts [870ms]
 ```
@@ -46,7 +46,7 @@ Configure Apity instance and generate functions for making API calls:
 // File: api.ts
 
 import { Apity } from '@cocreators-ee/apity'
-import { paths } from './petstore'
+import type { paths } from './petstore'
 
 const apity = Apity.for<paths>()
 
@@ -147,6 +147,21 @@ Each response is a Svelte store returning either an `undefined`, or the followin
     <p>{name}</p>
   {/each}
 </div>
+```
+
+### Error handling
+
+There are certain conditions under which an API request could throw an exception without
+actually reaching the desired server, for example, unpredictable network issues. For such
+cases, the api response will contain a status set to a negative number, indicating that
+an exception was thrown.
+
+```js
+{
+  ok: false,
+  status: -1,
+  data: undefined,
+}
 ```
 
 ### Using in load functions
