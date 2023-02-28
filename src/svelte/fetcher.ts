@@ -16,9 +16,48 @@ import type {
 import type { ApiRequest, ApiResponse, SvelteCreateFetch } from './types.js'
 import { ApiError } from '../types.js'
 
-function fetchUrl<R>(request: Request) {
+/***
+ * Make an API call and compose an ApiResponse object from the result
+ * @param request - Request wrapper
+ */
+async function fetchAndParse<R>(request: Request): Promise<ApiResponse<R>> {
   const { url, init } = getFetchParams(request)
+  try {
+    const response = await request.realFetch(url, init)
+    try {
+      const body = response.status === 204 ? undefined : await response.json()
+      if (response.ok) {
+        return {
+          status: response.status,
+          data: body as R,
+          ok: true,
+        }
+      } else {
+        return {
+          status: response.status,
+          data: body as R,
+          ok: false,
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to parse JSON from the response body', e)
+      return {
+        status: -2,
+        data: undefined,
+        ok: false,
+      }
+    }
+  } catch (e) {
+    console.warn('Failed to make an API request', e)
+    return {
+      status: -1,
+      data: undefined,
+      ok: false,
+    }
+  }
+}
 
+function fetchUrl<R>(request: Request) {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   const ready = writable<Promise<ApiResponse<R>>>(new Promise(() => {}))
   const resp = writable<ApiResponse<R> | undefined>()
@@ -34,12 +73,9 @@ function fetchUrl<R>(request: Request) {
 
   const apiCall: () => Promise<ApiResponse<R>> = () => {
     const promise = new Promise<ApiResponse<R>>(async (resolve) => {
-      const fetchRes = await request.realFetch(url, init)
-
-      const j = fetchRes.status === 204 ? undefined : await fetchRes.json()
-
+      const result = await fetchAndParse<R>(request)
       unsubscribe = resp.subscribe((r) => {
-        if (typeof r !== 'undefined' && r.data === j) {
+        if (typeof r !== 'undefined' && r.data === result.data) {
           resolve(r)
           retVal.onData = Promise.resolve(r)
           if (unsubscribe) {
@@ -48,20 +84,7 @@ function fetchUrl<R>(request: Request) {
           }
         }
       })
-
-      if (fetchRes.ok) {
-        resp.set({
-          status: fetchRes.status,
-          data: j as R,
-          ok: true,
-        })
-      } else {
-        resp.set({
-          status: fetchRes.status,
-          data: j,
-          ok: false,
-        })
-      }
+      resp.set(result)
     })
     ready.set(promise)
     return promise
