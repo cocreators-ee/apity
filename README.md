@@ -80,7 +80,7 @@ type ApiRequest<R = any> = {
   // If you reload the request using reload() function, this store will be updated.
   readonly ready: Writable<undefined | Promise<ApiResponse<R>>>
 
-  // Function that reloads the request with the same parameteres.
+  // Function that reloads the request with the same parameters.
   reload: () => Promise<ApiResponse<R>>
 
   // Promise for the API call.
