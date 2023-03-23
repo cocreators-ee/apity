@@ -77,7 +77,7 @@ type ApiRequest<R = any> = {
   readonly resp: Writable<ApiResponse<R> | undefined>
 
   // Svelte store that contains a promise for an API call.
-  // If you reload the requets using reload() function, this store will be updated.
+  // If you reload the request using reload() function, this store will be updated.
   readonly ready: Writable<undefined | Promise<ApiResponse<R>>>
 
   // Function that reloads the request with the same parameteres.
