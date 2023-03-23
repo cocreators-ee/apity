@@ -68,6 +68,7 @@ function fetchUrl<R>(request: Request) {
     ready,
     reload,
     // eslint-disable-next-line @typescript-eslint/no-empty-function
+    // Deprecated field. Will be removed in one of the major updates
     onData: new Promise(() => {}),
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     result: new Promise(() => {}),

@@ -192,7 +192,7 @@ export async function load({ fetch }) {
   const request = findPetByStatus({ status: 'sold' })
   const resp = await request.result
   if (resp.ok) {
-    return { pets: resp.data, error: '' }
+    return { pets: resp.data, error: undefined }
   } else {
     return { pets: [], error: 'Failed to load pets' }
   }
