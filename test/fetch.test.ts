@@ -40,7 +40,7 @@ describe('fetch', () => {
       scalar: 'a',
       list: ['b', 'c'],
     })
-    const { ok, status, data } = await request.onData
+    const { ok, status, data } = await request.result
 
     expect(data.params).toEqual({ a: '1', b: '%2F' })
     expect(data.query).toEqual({ scalar: 'a', list: ['b', 'c'] })
@@ -58,7 +58,7 @@ describe('fetch', () => {
         id: 1,
         list: ['b', 'c'],
       })
-      const { data } = await request.onData
+      const { data } = await request.result
       expect(data.params).toEqual({ id: '1' })
       expect(data.body).toEqual({ list: ['b', 'c'] })
       expect(data.query).toEqual({})
@@ -70,7 +70,7 @@ describe('fetch', () => {
       const fun = apity.path('/bodyarray/{id}').method(method).create()
 
       const request = fun(arrayRequestBody(['b', 'c'], { id: 1 }))
-      const { data } = await request.onData
+      const { data } = await request.result
 
       expect(data.params).toEqual({ id: '1' })
       expect(data.body).toEqual(['b', 'c'])
@@ -90,7 +90,7 @@ describe('fetch', () => {
         scalar: 'a',
         list: ['b', 'c'],
       })
-      const { data } = await request.onData
+      const { data } = await request.result
       expect(data.params).toEqual({ id: '1' })
       expect(data.body).toEqual({ list: ['b', 'c'] })
       expect(data.query).toEqual({ scalar: 'a' })
@@ -101,7 +101,7 @@ describe('fetch', () => {
     const fun = apity.path('/body/{id}').method('delete').create()
 
     const request = fun({ id: 1 } as any)
-    const { data } = await request.onData
+    const { data } = await request.result
 
     expect(data.params).toEqual({ id: '1' })
     expect(data.headers).toHaveProperty('accept')
@@ -111,7 +111,7 @@ describe('fetch', () => {
   it(`POST /nocontent`, async () => {
     const fun = apity.path('/nocontent').method('post').create()
     const request = fun(undefined)
-    const { data, status } = await request.onData
+    const { data, status } = await request.result
     expect(status).toBe(204)
     expect(data).toBeUndefined()
   })
@@ -120,14 +120,14 @@ describe('fetch', () => {
     const fun = apity.path('/counter').method('get').create()
 
     const request = fun({})
-    const { data } = await request.onData
+    const { data } = await request.result
     expect(data.counter).toEqual(1)
 
     const secondResp = await request.reload()
     expect(secondResp.data.counter).toEqual(2)
 
     request.reload()
-    const thirdResp = await request.onData
+    const thirdResp = await request.result
     expect(thirdResp.data.counter).toEqual(3)
   })
 })

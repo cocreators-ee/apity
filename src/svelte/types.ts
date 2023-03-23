@@ -18,6 +18,8 @@ export type ApiRequest<R = any> = {
   readonly resp: Writable<ApiResponse<R> | undefined>
   readonly ready: Writable<undefined | Promise<ApiResponse<R>>>
   reload: () => Promise<ApiResponse<R>>
+  result: Promise<ApiResponse<R>>
+  // deprecated field. will be removed in one of the major updates
   onData: Promise<ApiResponse<R>>
 }
 
