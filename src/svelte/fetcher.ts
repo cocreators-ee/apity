@@ -69,6 +69,8 @@ function fetchUrl<R>(request: Request) {
     reload,
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     onData: new Promise(() => {}),
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    result: new Promise(() => {}),
   } as ApiRequest<R>
 
   const apiCall: () => Promise<ApiResponse<R>> = () => {
@@ -77,7 +79,8 @@ function fetchUrl<R>(request: Request) {
       unsubscribe = resp.subscribe((r) => {
         if (typeof r !== 'undefined' && r.data === result.data) {
           resolve(r)
-          retVal.onData = Promise.resolve(r)
+          retVal.result = Promise.resolve(r)
+          retVal.onData = retVal.result
           if (unsubscribe) {
             unsubscribe()
             unsubscribe = undefined
@@ -96,11 +99,13 @@ function fetchUrl<R>(request: Request) {
       unsubscribe = undefined
     }
     const apiCallPromise = apiCall()
+    retVal.result = apiCallPromise
     retVal.onData = apiCallPromise
     return apiCallPromise
   }
 
-  retVal.onData = apiCall()
+  retVal.result = apiCall()
+  retVal.onData = retVal.result
   retVal.reload = reload
   return retVal
 }

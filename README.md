@@ -33,9 +33,9 @@ On the roadmap:
 Before working with the library, you need to generate an API spec using [openapi-typescript](https://www.npmjs.com/package/openapi-typescript):
 
 ```bash
-npx openapi-typescript https://petstore3.swagger.io/api/v3/openapi.json --output petstore.ts
+npx openapi-typescript https://petstore3.swagger.io/api/v3/openapi.json --output src/petstore.ts
 
-🚀 https://petstore3.swagger.io/api/v3/openapi.json → file:.petstore.ts [870ms]
+🚀 https://petstore3.swagger.io/api/v3/openapi.json → file:./src/petstore.ts [870ms]
 ```
 
 ### Using Apity
@@ -46,13 +46,13 @@ Configure Apity instance and generate functions for making API calls:
 // File: api.ts
 
 import { Apity } from '@cocreators-ee/apity'
-import type { paths } from './petstore'
+import type { paths } from 'src/petstore'
 
 const apity = Apity.for<paths>()
 
 // global configuration
 apity.configure({
-  // Base URL to your API, e.g. `/` if you're serving API from the same domain
+  // Base URL to your API
   baseUrl: 'https://petstore.swagger.io/v2',
   // RequestInit options, e.g. default headers
   init: {
@@ -71,39 +71,67 @@ export const addPet = apity.path('/pet').method('post').create()
 
 Each API call is represented as a request object that has the following properties:
 
-```ts
-{
+```typescript
+type ApiRequest<R = any> = {
+  // Svelte store containing the response of the API call.
+  readonly resp: Writable<ApiResponse<R> | undefined>
+
   // Svelte store that contains a promise for an API call.
   // If you reload the requets using reload() function, this store will be updated.
-  ready,
+  readonly ready: Writable<undefined | Promise<ApiResponse<R>>>
+
+  // Function that reloads the request with the same parameteres.
+  reload: () => Promise<ApiResponse<R>>
+
   // Promise for the API call.
   // Useful for server code and places where you can't use the `ready` store.
-  onData,
-  // Svelte store containing the response of the API call.
-  resp,
-  // Function that reloads the request with the same parameteres.
-  reload,
+  result: Promise<ApiResponse<R>>
 }
 ```
 
 Each response is a Svelte store returning either an `undefined`, or the following object:
 
 ```ts
-{
-  // HTTP status code
-  status,
-  // Boolean, whether the request was successful or not
-  ok,
+type SuccessfulResp<R> = {
+  ok: true
   // Typed object for a successful request. Built from the OpenAPI spec
-  data,
+  data: R
+  // HTTP status code
+  status: number
+}
+
+type FailedResp = {
+  ok: false
+  data: any
+  // HTTP status code
+  status: number
+}
+
+type ApiResponse<R> = SuccessfulResp<R> | FailedResp
+```
+
+### Error handling
+
+There are certain conditions under which an API request could throw an exception without
+actually reaching the desired server, for example, unpredictable network issues. For such
+cases, the api response will contain a status set to a negative number, indicating that
+an exception was thrown.
+
+```js
+{
+  ok: false,
+  status: -1,
+  data: undefined,
 }
 ```
 
 ### Using Apity with await syntax in templates
 
+Assuming you've created an `src/api.ts` from [using Apity](#using-apity) section:
+
 ```svelte
 <script lang="ts">
-  import { findPetByStatus } from './api.ts'
+  import { findPetByStatus } from 'src/api.ts'
   const request = findPetByStatus({ status: 'sold' })
   const petsReady = request.ready
 </script>
@@ -129,9 +157,11 @@ Each response is a Svelte store returning either an `undefined`, or the followin
 
 ### Subscribing to response store
 
+Assuming you've created an `src/api.ts` from [using Apity](#using-apity) section:
+
 ```svelte
 <script lang="ts">
-  import { findPetByStatus } from './api.ts'
+  import { findPetByStatus } from 'src/api.ts'
   const request = findPetByStatus({ status: 'sold' })
   let names = []
 
@@ -149,35 +179,25 @@ Each response is a Svelte store returning either an `undefined`, or the followin
 </div>
 ```
 
-### Error handling
-
-There are certain conditions under which an API request could throw an exception without
-actually reaching the desired server, for example, unpredictable network issues. For such
-cases, the api response will contain a status set to a negative number, indicating that
-an exception was thrown.
-
-```js
-{
-  ok: false,
-  status: -1,
-  data: undefined,
-}
-```
-
 ### Using in load functions
 
-Fetch operations support SvelteKit's [load](https://kit.svelte.dev/docs/load#making-fetch-requests) function from `+page.ts` and `+page.server.ts`:
+Fetch operations support SvelteKit's [load](https://kit.svelte.dev/docs/load#making-fetch-requests) function from `+page.ts` and `+page.server.ts`.
+
+Assuming you've created an `src/api.ts` from [using Apity](#using-apity) section:
 
 ```ts
+import { findPetByStatus } from 'src/api.ts'
+
 export async function load({ fetch }) {
   const request = findPetByStatus({ status: 'sold' })
-  const resp = await request.onData
-  // returning the entire request to a page in order to be able to `reload()` it.
-  // `request.resp.data` is already available
-  return { request }
+  const resp = await request.result
+  if (resp.ok) {
+    return { pets: resp.data, error: '' }
+  } else {
+    return { pets: [], error: 'Failed to load pets' }
+  }
 }
 ```
-
 
 # Financial support
 
