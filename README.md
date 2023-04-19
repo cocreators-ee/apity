@@ -26,6 +26,11 @@ On the roadmap:
 
 - [ ] Caching of subsequent requests with the same URL and parameters
 
+### Live demo
+
+Apity has a [live demo](https://apity-demo.vercel.app/) with code samples.
+Also you can read an introductionary [blog post](https://dev.to/fbjorn/a-typed-http-client-for-sveltekit-88b).
+
 ## Usage
 
 ### Generate typescript definition from schema
