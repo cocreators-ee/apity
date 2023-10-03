@@ -207,5 +207,6 @@ type TextContentType = {
     | { 'text/css': any }
     | { 'text/csv': any }
     | { 'text/html': any }
+    | { 'text/xml': any }
     | { 'text/javascript': any }
 }

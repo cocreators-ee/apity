@@ -22,7 +22,8 @@ async function getResponseBody(response: LimitedResponse) {
     return undefined
   }
   const contentType = response.headers.get('content-type')
-  if (contentType && contentType.indexOf('application/json') !== -1) {
+  const jsonTypes = ["application/json", "application/ld+json"]
+  if (contentType && jsonTypes.includes(contentType)) {
     return await response.json()
   } else if (contentType && contentType.indexOf('text') === -1) {
     // if the response is neither JSON nor text, return binary data as is
