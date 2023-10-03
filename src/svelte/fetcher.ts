@@ -14,7 +14,28 @@ import type {
   Method,
 } from '../types.js'
 import type { ApiRequest, ApiResponse, SvelteCreateFetch } from './types.js'
-import { ApiError } from '../types.js'
+import { ApiError, LimitedResponse } from '../types.js'
+
+async function getResponseBody(response: LimitedResponse) {
+  // no content
+  if (response.status === 204) {
+    return undefined
+  }
+  const contentType = response.headers.get('content-type')
+  if (contentType && contentType.indexOf('application/json') !== -1) {
+    return await response.json()
+  } else if (contentType && contentType.indexOf('text') === -1) {
+    // if the response is neither JSON nor text, return binary data as is
+    // @ts-ignore
+    return await response.blob()
+  }
+  const text = await response.text()
+  try {
+    return JSON.parse(text)
+  } catch (e) {
+    return text
+  }
+}
 
 /***
  * Make an API call and compose an ApiResponse object from the result
@@ -25,7 +46,7 @@ async function fetchAndParse<R>(request: Request): Promise<ApiResponse<R>> {
   try {
     const response = await request.realFetch(url, init)
     try {
-      const body = response.status === 204 ? undefined : await response.json()
+      const body = await getResponseBody(response)
       if (response.ok) {
         return {
           status: response.status,
@@ -40,7 +61,7 @@ async function fetchAndParse<R>(request: Request): Promise<ApiResponse<R>> {
         }
       }
     } catch (e) {
-      console.warn('Failed to parse JSON from the response body', e)
+      console.warn('Failed to parse the response body', e)
       return {
         status: -2,
         data: undefined,
