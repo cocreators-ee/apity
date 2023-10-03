@@ -39,9 +39,11 @@ type OpResponseTypes<OP> = OP extends {
         ? S
         : R[S] extends { content: { 'application/json': infer C } } // openapi 3
         ? C
+        : R[S] extends TextContentType
+        ? string
         : S extends 'default'
         ? R[S]
-        : unknown
+        : Blob
     }
   : never
 
@@ -197,4 +199,14 @@ export class ApiError extends Error {
     this.statusText = response.statusText
     this.data = response.data
   }
+}
+
+type TextContentType = {
+  content:
+    | { 'text/css': any }
+    | { 'text/csv': any }
+    | { 'text/html': any }
+    | { 'text/javascript': any }
+    | { 'text/plain': any }
+    | { 'text/xml': any }
 }
