@@ -16,14 +16,15 @@ import type {
 import type { ApiRequest, ApiResponse, SvelteCreateFetch } from './types.js'
 import { ApiError, LimitedResponse } from '../types.js'
 
+const JSON_CONTENT_TYPES = ['application/json', 'application/ld+json']
+
 async function getResponseBody(response: LimitedResponse) {
   // no content
   if (response.status === 204) {
     return undefined
   }
   const contentType = response.headers.get('content-type')
-  const jsonTypes = ["application/json", "application/ld+json"]
-  if (contentType && jsonTypes.includes(contentType)) {
+  if (contentType && JSON_CONTENT_TYPES.includes(contentType)) {
     return await response.json()
   } else if (contentType && contentType.indexOf('text') === -1) {
     // if the response is neither JSON nor text, return binary data as is

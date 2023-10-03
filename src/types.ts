@@ -203,10 +203,10 @@ export class ApiError extends Error {
 
 type TextContentType = {
   content:
-    | { 'text/plain': any }
     | { 'text/css': any }
     | { 'text/csv': any }
     | { 'text/html': any }
-    | { 'text/xml': any }
     | { 'text/javascript': any }
+    | { 'text/plain': any }
+    | { 'text/xml': any }
 }
