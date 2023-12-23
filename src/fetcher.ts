@@ -25,12 +25,14 @@ function queryString(params: Record<string, unknown>): string {
 
   const encode = (key: string, value: unknown) =>
     `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`
-
+  const encodeArray = (key, value) => 
+    `${encodeURIComponent(key)}[]=${encodeURIComponent(String(value))}`;
+  
   Object.keys(params).forEach((key) => {
     const value = params[key]
     if (value != null) {
       if (Array.isArray(value)) {
-        value.forEach((value) => qs.push(encode(key, value)))
+        value.forEach((value) => qs.push(encodeArray(key, value)))
       } else {
         qs.push(encode(key, value))
       }
