@@ -1,7 +1,7 @@
 {
   "name": "@cocreators-ee/apity",
   "description": "A typed fetch client for openapi-typescript with Svelte support",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "readme": "README.md",
   "engines": {
     "node": ">= 12.0.0",
