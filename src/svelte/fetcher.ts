@@ -25,14 +25,8 @@ async function getResponseBody(response: LimitedResponse) {
   }
 
   const contentType = response.headers.get('content-type')
-  let isJsonResp = false
-  if (contentType) {
-    isJsonResp = JSON_CONTENT_TYPES.some((jsonContentType) =>
-      contentType?.includes(jsonContentType),
-    )
-  }
-
-  if (contentType && isJsonResp) {
+  // Need to do .split(';') to ignore content-type directives like charset
+  if (contentType && JSON_CONTENT_TYPES.includes(contentType.split(';')[0])) {
     return await response.json()
   } else if (contentType && contentType.indexOf('text') === -1) {
     // if the response is neither JSON nor text, return binary data as is
