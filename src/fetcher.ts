@@ -120,11 +120,12 @@ export function getFetchParams(request: Request) {
   const path = getPath(request.path, payload)
   const query = getQuery(request.method, payload, request.queryParams)
   const body = getBody(request.method, payload)
-  const headers = getHeaders(body, request.init?.headers)
-  const url = request.baseUrl + path + query
+  const mergedInit = mergeRequestInit(request.config.init, request.init);
+  const headers = getHeaders(body, mergedInit.headers)
+  const url = request.config.baseUrl + path + query
 
   const init = {
-    ...request.init,
+    ...mergedInit,
     method: request.method.toUpperCase(),
     headers,
     body,
@@ -218,13 +219,17 @@ function createFetch<OP>(fetch: _TypedWrappedFetch<OP>): TypedWrappedFetch<OP> {
 }
 
 function fetcher<Paths>() {
-  let baseUrl = ''
-  let defaultInit: RequestInit = {}
+  let defaultConfig: FetchConfig = {
+    baseUrl: '',
+    init: {},
+    use: []
+  }
 
   return {
     configure: (config: FetchConfig) => {
-      baseUrl = config.baseUrl || ''
-      defaultInit = config.init || {}
+      defaultConfig.baseUrl = config.baseUrl || ''
+      defaultConfig.init = config.init || {}
+      defaultConfig.use = config.use || []
     },
     path: <P extends keyof Paths>(path: P) => ({
       method: <M extends keyof Paths[P]>(method: M) => ({
@@ -232,13 +237,13 @@ function fetcher<Paths>() {
         create: function (queryParams?: Record<string, true | 1>) {
           const fn = createFetch((payload, realFetch, init) =>
             fetchUrl({
-              baseUrl: baseUrl || '',
               path: path as string,
               method: method as Method,
               queryParams: Object.keys(queryParams || {}),
               payload,
-              init: mergeRequestInit(defaultInit, init),
+              init: init,
               realFetch: realFetch || fetch,
+              config: defaultConfig
             }),
           )
           // @ts-ignore

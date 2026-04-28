@@ -82,7 +82,7 @@ async function fetchAndParse<R>(request: Request): Promise<ApiResponse<R>> {
 
 function fetchUrl<R>(request: Request) {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  const ready = writable<Promise<ApiResponse<R>>>(new Promise(() => {}))
+  const ready = writable<Promise<ApiResponse<R>>>(new Promise(() => { }))
   const resp = writable<ApiResponse<R> | undefined>()
   let unsubscribe: Unsubscriber | undefined = undefined
 
@@ -92,9 +92,9 @@ function fetchUrl<R>(request: Request) {
     reload,
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     // Deprecated field. Will be removed in one of the major updates
-    onData: new Promise(() => {}),
+    onData: new Promise(() => { }),
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    result: new Promise(() => {}),
+    result: new Promise(() => { }),
   } as ApiRequest<R>
 
   const apiCall: () => Promise<ApiResponse<R>> = () => {
@@ -170,13 +170,17 @@ function createFetch<OP>(fetch: _TypedWrappedFetch<OP>): TypedWrappedFetch<OP> {
 }
 
 function fetcher<Paths>() {
-  let baseUrl = ''
-  let defaultInit: RequestInit = {}
+  let defaultConfig: FetchConfig = {
+    baseUrl: '',
+    init: {},
+    use: []
+  }
 
   return {
     configure: (config: FetchConfig) => {
-      baseUrl = config.baseUrl || ''
-      defaultInit = config.init || {}
+      defaultConfig.baseUrl = config.baseUrl || '';
+      defaultConfig.init = config.init || {};
+      defaultConfig.use = config.use || []
     },
     path: <P extends keyof Paths>(path: P) => ({
       method: <M extends keyof Paths[P]>(method: M) => ({
@@ -184,13 +188,13 @@ function fetcher<Paths>() {
           const fn = createFetch((payload, realFetch, init) =>
             // @ts-ignore
             fetchUrl({
-              baseUrl: baseUrl || '',
               path: path as string,
               method: method as Method,
               queryParams: Object.keys(queryParams || {}),
               payload,
-              init: mergeRequestInit(defaultInit, init),
+              init: init,
               realFetch: realFetch || fetch,
+              config: defaultConfig
             }),
           )
 

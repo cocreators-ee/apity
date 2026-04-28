@@ -35,16 +35,16 @@ type OpResponseTypes<OP> = OP extends {
   responses: infer R
 }
   ? {
-      [S in keyof R]: R[S] extends { schema?: infer S } // openapi 2
-        ? S
-        : R[S] extends { content: { 'application/json': infer C } } // openapi 3
-        ? C
-        : R[S] extends TextContentType
-        ? string
-        : S extends 'default'
-        ? R[S]
-        : Blob
-    }
+    [S in keyof R]: R[S] extends { schema?: infer S } // openapi 2
+    ? S
+    : R[S] extends { content: { 'application/json': infer C } } // openapi 3
+    ? C
+    : R[S] extends TextContentType
+    ? string
+    : S extends 'default'
+    ? R[S]
+    : Blob
+  }
   : never
 
 type _OpReturnType<T> = 200 extends keyof T
@@ -137,8 +137,8 @@ type _CreateFetch<OP, Q = never> = [Q] extends [never]
 
 export type CreateFetch<M, OP> = M extends 'post' | 'put' | 'patch' | 'delete'
   ? OP extends { parameters: { query: infer Q } }
-    ? _CreateFetch<OP, { [K in keyof Q]: true | 1 }>
-    : _CreateFetch<OP>
+  ? _CreateFetch<OP, { [K in keyof Q]: true | 1 }>
+  : _CreateFetch<OP>
   : _CreateFetch<OP>
 
 export type Middleware = (
@@ -154,12 +154,12 @@ export type FetchConfig = {
 }
 
 export type Request = {
-  baseUrl: string
   method: Method
   path: string
   queryParams: string[] // even if a post these will be sent in query
   payload: any
   init?: RequestInit
+  config: FetchConfig
   realFetch: RealFetch
 }
 
@@ -203,10 +203,10 @@ export class ApiError extends Error {
 
 type TextContentType = {
   content:
-    | { 'text/css': any }
-    | { 'text/csv': any }
-    | { 'text/html': any }
-    | { 'text/javascript': any }
-    | { 'text/plain': any }
-    | { 'text/xml': any }
+  | { 'text/css': any }
+  | { 'text/csv': any }
+  | { 'text/html': any }
+  | { 'text/javascript': any }
+  | { 'text/plain': any }
+  | { 'text/xml': any }
 }
